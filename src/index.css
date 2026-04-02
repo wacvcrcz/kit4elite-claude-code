@@ -1,6 +1,4 @@
-@import '@fontsource/clash-display/400.css';
-@import '@fontsource/clash-display/500.css';
-@import '@fontsource/clash-display/600.css';
+/* Font: Clash Display loaded via Fontshare CDN (defined in index.html) */
 @import '@fontsource/inter/400.css';
 @import '@fontsource/inter/500.css';
 @import '@fontsource/inter/600.css';
@@ -46,7 +44,7 @@
     --surface: 255 255 255;
     --surface-elevated: 250 250 250;
 
-    /* Typography */
+    /* Typography - Clash Display via CDN, Inter via fontsource */
     --font-display: 'Clash Display', system-ui, sans-serif;
     --font-body: 'Inter', system-ui, sans-serif;
 
