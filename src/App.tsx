@@ -14,15 +14,25 @@ import { ProductDetailPage } from '@/pages/products/product-detail';
 import { CartPage } from '@/pages/cart/cart-page';
 import { CheckoutPage } from '@/pages/checkout/checkout';
 
+// Layout
+import { Header } from '@/components/layout/header';
+
 // Route guards
 import { ProtectedRoute, GuestRoute } from '@/components/auth/protected-route';
+
+// Admin Pages
+import { AdminDashboardPage } from '@/pages/admin/dashboard';
+import { AdminProductsPage } from '@/pages/admin/products';
+import { AdminCategoriesPage } from '@/pages/admin/categories';
+import { AdminCouponsPage } from '@/pages/admin/coupons';
+import { AdminOrdersPage } from '@/pages/admin/orders';
 
 // Placeholder for future pages
 const Home = () => (
   <div className="min-h-screen flex flex-col items-center justify-center px-6">
     <h1 className="font-display text-display-lg text-gradient mb-6">LUXE</h1>
     <p className="text-neutral-400 text-lg max-w-md text-center">
-      Premium e-commerce platform. Auth system ready.
+      Premium e-commerce platform. Fully featured.
     </p>
   </div>
 );
@@ -35,116 +45,117 @@ const Dashboard = () => (
   </div>
 );
 
-// Admin Pages
-import { AdminDashboardPage } from '@/pages/admin/dashboard';
-import { AdminProductsPage } from '@/pages/admin/products';
-import { AdminCategoriesPage } from '@/pages/admin/categories';
-import { AdminCouponsPage } from '@/pages/admin/coupons';
-import { AdminOrdersPage } from '@/pages/admin/orders';
-
 function App() {
   const location = useLocation();
 
+  // Hide header on admin routes
+  const isAdminRoute = location.pathname.startsWith('/admin');
+
   return (
-    <AnimatePresence mode="wait">
-      <Routes location={location} key={location.pathname}>
-        {/* Public routes */}
-        <Route path="/" element={<Home />} />
-        <Route path="/products" element={<ProductListPage />} />
-        <Route path="/products/:slug" element={<ProductDetailPage />} />
-        <Route path="/cart" element={<CartPage />} />
-        <Route
-          path="/checkout"
-          element={
-            <ProtectedRoute>
-              <CheckoutPage />
-            </ProtectedRoute>
-          }
-        />
+    <div className="min-h-screen bg-neutral-950 text-neutral-50">
+      {!isAdminRoute && <Header />}
+      <AnimatePresence mode="wait">
+        <Routes location={location} key={location.pathname}>
+          {/* Public routes */}
+          <Route path="/" element={<Home />} />
+          <Route path="/products" element={<ProductListPage />} />
+          <Route path="/products/:slug" element={<ProductDetailPage />} />
+          <Route path="/cart" element={<CartPage />} />
 
-        {/* Guest-only routes (redirects if authenticated) */}
-        <Route
-          path="/login"
-          element={
-            <GuestRoute>
-              <LoginPage />
-            </GuestRoute>
-          }
-        />
-        <Route
-          path="/register"
-          element={
-            <GuestRoute>
-              <RegisterPage />
-            </GuestRoute>
-          }
-        />
+          {/* Protected checkout */}
+          <Route
+            path="/checkout"
+            element={
+              <ProtectedRoute>
+                <CheckoutPage />
+              </ProtectedRoute>
+            }
+          />
 
-        {/* Protected customer routes */}
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
+          {/* Guest-only routes (redirects if authenticated) */}
+          <Route
+            path="/login"
+            element={
+              <GuestRoute>
+                <LoginPage />
+              </GuestRoute>
+            }
+          />
+          <Route
+            path="/register"
+            element={
+              <GuestRoute>
+                <RegisterPage />
+              </GuestRoute>
+            }
+          />
 
-        {/* Admin-only routes */}
-        <Route
-          path="/admin"
-          element={
-            <ProtectedRoute requiredRole="admin">
-              <AdminDashboardPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/products"
-          element={
-            <ProtectedRoute requiredRole="admin">
-              <AdminProductsPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/categories"
-          element={
-            <ProtectedRoute requiredRole="admin">
-              <AdminCategoriesPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/coupons"
-          element={
-            <ProtectedRoute requiredRole="admin">
-              <AdminCouponsPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/orders"
-          element={
-            <ProtectedRoute requiredRole="admin">
-              <AdminOrdersPage />
-            </ProtectedRoute>
-          }
-        />
+          {/* Protected customer routes */}
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
 
-        {/* 404 fallback */}
-        <Route
-          path="*"
-          element={
-            <div className="min-h-screen flex items-center justify-center">
-              <div className="text-center">
-                <h1 className="font-display text-6xl text-neutral-600 mb-4">404</h1>
-                <p className="text-neutral-400">Page not found</p>
+          {/* Admin-only routes */}
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <AdminDashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/products"
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <AdminProductsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/categories"
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <AdminCategoriesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/coupons"
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <AdminCouponsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/orders"
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <AdminOrdersPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* 404 fallback */}
+          <Route
+            path="*"
+            element={
+              <div className="min-h-screen flex items-center justify-center">
+                <div className="text-center">
+                  <h1 className="font-display text-6xl text-neutral-600 mb-4">404</h1>
+                  <p className="text-neutral-400">Page not found</p>
+                </div>
               </div>
-            </div>
-          }
-        />
-      </Routes>
+            }
+          />
+        </Routes>
+      </AnimatePresence>
       <Toaster
         position="bottom-right"
         toastOptions={{
@@ -169,7 +180,7 @@ function App() {
           },
         }}
       />
-    </AnimatePresence>
+    </div>
   );
 }
 
