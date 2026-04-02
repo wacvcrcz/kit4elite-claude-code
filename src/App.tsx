@@ -6,6 +6,10 @@ import { Toaster } from 'react-hot-toast';
 import { LoginPage } from '@/pages/auth/login';
 import { RegisterPage } from '@/pages/auth/register';
 
+// Products
+import { ProductListPage } from '@/pages/products/product-list';
+import { ProductDetailPage } from '@/pages/products/product-detail';
+
 // Route guards
 import { ProtectedRoute, GuestRoute } from '@/components/auth/protected-route';
 
@@ -43,6 +47,8 @@ function App() {
       <Routes location={location} key={location.pathname}>
         {/* Public routes */}
         <Route path="/" element={<Home />} />
+        <Route path="/products" element={<ProductListPage />} />
+        <Route path="/products/:slug" element={<ProductDetailPage />} />
 
         {/* Guest-only routes (redirects if authenticated) */}
         <Route
