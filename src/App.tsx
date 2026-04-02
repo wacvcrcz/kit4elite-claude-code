@@ -10,6 +10,10 @@ import { RegisterPage } from '@/pages/auth/register';
 import { ProductListPage } from '@/pages/products/product-list';
 import { ProductDetailPage } from '@/pages/products/product-detail';
 
+// Cart & Checkout
+import { CartPage } from '@/pages/cart/cart-page';
+import { CheckoutPage } from '@/pages/checkout/checkout';
+
 // Route guards
 import { ProtectedRoute, GuestRoute } from '@/components/auth/protected-route';
 
@@ -48,6 +52,15 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/products" element={<ProductListPage />} />
         <Route path="/products/:slug" element={<ProductDetailPage />} />
+        <Route path="/cart" element={<CartPage />} />
+        <Route
+          path="/checkout"
+          element={
+            <ProtectedRoute>
+              <CheckoutPage />
+            </ProtectedRoute>
+          }
+        />
 
         {/* Guest-only routes (redirects if authenticated) */}
         <Route
