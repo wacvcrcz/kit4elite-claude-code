@@ -1,0 +1,191 @@
+@import '@fontsource/clash-display/400.css';
+@import '@fontsource/clash-display/500.css';
+@import '@fontsource/clash-display/600.css';
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+@layer base {
+  :root {
+    /* Core brand colors - Teal/Cyan palette */
+    --primary-50: 240 253 250;
+    --primary-100: 204 251 241;
+    --primary-200: 153 246 228;
+    --primary-300: 94 234 212;
+    --primary-400: 45 212 191;
+    --primary-500: 20 184 166;
+    --primary-600: 13 148 136;
+    --primary-700: 15 118 110;
+    --primary-800: 17 94 89;
+    --primary-900: 19 78 74;
+    --primary-950: 4 47 46;
+
+    /* Neutral scale */
+    --neutral-50: 250 250 250;
+    --neutral-100: 245 245 245;
+    --neutral-200: 229 229 229;
+    --neutral-300: 212 212 212;
+    --neutral-400: 163 163 163;
+    --neutral-500: 115 115 115;
+    --neutral-600: 82 82 82;
+    --neutral-700: 64 64 64;
+    --neutral-800: 38 38 38;
+    --neutral-900: 23 23 23;
+    --neutral-950: 10 10 10;
+
+    /* Semantic colors */
+    --success: 16 185 129;
+    --warning: 245 158 11;
+    --error: 239 68 68;
+    --info: 59 130 246;
+
+    /* Surfaces */
+    --surface: 255 255 255;
+    --surface-elevated: 250 250 250;
+
+    /* Typography */
+    --font-display: 'Clash Display', system-ui, sans-serif;
+    --font-body: 'Inter', system-ui, sans-serif;
+
+    /* Spacing scale (CSS variables for JS access) */
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-5: 1.25rem;
+    --space-6: 1.5rem;
+    --space-8: 2rem;
+    --space-10: 2.5rem;
+    --space-12: 3rem;
+    --space-16: 4rem;
+
+    /* Border radius */
+    --radius-sm: 0.375rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+    --radius-xl: 1rem;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  }
+
+  .dark {
+    --surface: 10 10 10;
+    --surface-elevated: 20 20 20;
+  }
+
+  * {
+    @apply border-neutral-200 dark:border-neutral-800;
+  }
+
+  html {
+    @apply scroll-smooth antialiased;
+    font-family: var(--font-body);
+  }
+
+  body {
+    @apply bg-neutral-950 text-neutral-50 min-h-screen;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    @apply font-semibold tracking-tight;
+  }
+
+  h1 { @apply text-4xl md:text-5xl lg:text-6xl; }
+  h2 { @apply text-3xl md:text-4xl; }
+  h3 { @apply text-2xl md:text-3xl; }
+  h4 { @apply text-xl md:text-2xl; }
+  h5 { @apply text-lg md:text-xl; }
+  h6 { @apply text-base md:text-lg; }
+
+  /* NProgress customization */
+  #nprogress {
+    pointer-events: none;
+  }
+
+  #nprogress .bar {
+    @apply bg-primary-500 fixed top-0 left-0 w-full h-1 z-50;
+    box-shadow: 0 0 10px rgba(20, 184, 166, 0.5);
+  }
+
+  #nprogress .peg {
+    display: none;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    @apply w-2 h-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-neutral-900;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-neutral-700 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-neutral-600;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10;
+  }
+
+  .glass-dark {
+    @apply bg-black/20 backdrop-blur-xl border border-white/5;
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-400 to-cyan-300;
+  }
+
+  .btn-icon {
+    @apply inline-flex items-center justify-center;
+  }
+
+  .focus-ring {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950;
+  }
+}
+
+@layer utilities {
+  .animate-enter {
+    animation: enter 0.2s ease-out forwards;
+  }
+
+  .animate-exit {
+    animation: exit 0.2s ease-in forwards;
+  }
+
+  @keyframes enter {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes exit {
+    from {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+  }
+}
