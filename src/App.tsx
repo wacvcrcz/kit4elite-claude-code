@@ -31,13 +31,12 @@ const Dashboard = () => (
   </div>
 );
 
-// Admin dashboard placeholder
-const AdminDashboard = () => (
-  <div className="min-h-screen flex flex-col items-center justify-center px-6">
-    <h1 className="font-display text-display-lg text-gradient mb-6">Admin</h1>
-    <p className="text-neutral-400 text-lg">Admin-only area</p>
-  </div>
-);
+// Admin Pages
+import { AdminDashboardPage } from '@/pages/admin/dashboard';
+import { AdminProductsPage } from '@/pages/admin/products';
+import { AdminCategoriesPage } from '@/pages/admin/categories';
+import { AdminCouponsPage } from '@/pages/admin/coupons';
+import { AdminOrdersPage } from '@/pages/admin/orders';
 
 function App() {
   const location = useLocation();
@@ -83,7 +82,39 @@ function App() {
           path="/admin"
           element={
             <ProtectedRoute requiredRole="admin">
-              <AdminDashboard />
+              <AdminDashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/products"
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <AdminProductsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/categories"
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <AdminCategoriesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/coupons"
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <AdminCouponsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/orders"
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <AdminOrdersPage />
             </ProtectedRoute>
           }
         />
