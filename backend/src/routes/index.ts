@@ -7,6 +7,7 @@ import { Router } from 'express';
 import authRoutes from './auth.routes';
 import productRoutes from './product.routes';
 import categoryRoutes from './category.routes';
+import couponRoutes from './coupon.routes';
 
 const router = Router();
 
@@ -20,6 +21,7 @@ router.get('/', (_req, res) => {
       auth: '/api/auth',
       products: '/api/products',
       categories: '/api/categories',
+      coupons: '/api/coupons',
     },
   });
 });
@@ -28,5 +30,6 @@ router.get('/', (_req, res) => {
 router.use('/auth', authRoutes);
 router.use('/products', productRoutes);
 router.use('/categories', categoryRoutes);
+router.use('/coupons', couponRoutes);
 
 export { router as apiRouter };
