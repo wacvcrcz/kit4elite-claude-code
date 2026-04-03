@@ -36,65 +36,64 @@ enum DiscountType {
 
 /// User model
 model User {
-  id            String   @id @default(uuid())
-  email         String   @unique
-  passwordHash  String   @map("password_hash")
-  name          String
-  role          Role     @default(CUSTOMER)
-  refreshToken  String?  @map("refresh_token")
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
+  id String @id @default(uuid())
+  email String @unique
+  passwordHash String @map("password_hash")
+  name String
+  role Role @default(CUSTOMER)
+  refreshToken String? @map("refresh_token")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
-  orders        Order[]
+  orders Order[]
 
   @@map("users")
 }
 
 /// Category model
 model Category {
-  id          String   @id @default(uuid())
-  name        String
-  slug        String   @unique
+  id String @id @default(uuid())
+  name String
+  slug String @unique
   description String?
-  image       String?
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  image String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
-  products    Product[]
-  coupons     Coupon[]
+  products Product[]
 
   @@map("categories")
 }
 
 /// Product model
 model Product {
-  id            String      @id @default(uuid())
-  name          String
-  slug          String      @unique
-  description   String?
-  priceCents    Int         @map("price_cents")
-  compareAtPriceCents Int?  @map("compare_at_price_cents")
-  type          ProductType
-  images        String[]
-  stock         Int?        // null for digital products
-  downloadUrl   String?     @map("download_url") // S3 key for digital products
-  fileSize      String?     @map("file_size")
-  fileFormat    String?     @map("file_format")
-  isPublished   Boolean     @default(true) @map("is_published")
-  weightGrams   Int?        @map("weight_grams")
-  dimensions    Json?       // { length, width, height } for physical
+  id String @id @default(uuid())
+  name String
+  slug String @unique
+  description String?
+  priceCents Int @map("price_cents")
+  compareAtPriceCents Int? @map("compare_at_price_cents")
+  type ProductType
+  images String[]
+  stock Int? // null for digital products
+  downloadUrl String? @map("download_url") // S3 key for digital products
+  fileSize String? @map("file_size")
+  fileFormat String? @map("file_format")
+  isPublished Boolean @default(true) @map("is_published")
+  weightGrams Int? @map("weight_grams")
+  dimensions Json? // { length, width, height } for physical
 
-  createdAt     DateTime    @default(now()) @map("created_at")
-  updatedAt     DateTime    @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   // FK Relations
-  categoryId    String      @map("category_id")
-  category      Category    @relation(fields: [categoryId], references: [id])
+  categoryId String @map("category_id")
+  category Category @relation(fields: [categoryId], references: [id])
 
   // Relations
-  orderItems    OrderItem[]
+  orderItems OrderItem[]
 
   @@map("products")
   @@index([categoryId])
@@ -104,24 +103,24 @@ model Product {
 
 /// Coupon model
 model Coupon {
-  id              String       @id @default(uuid())
-  code            String       @unique
-  discountType    DiscountType @map("discount_type")
-  discountValue   Int          @map("discount_value") // cents for fixed, percentage (1-100) for percentage
-  maxUses         Int          @default(100) @map("max_uses")
-  usedCount       Int          @default(0) @map("used_count")
-  minPurchaseCents Int?        @map("min_purchase_cents")
-  maxDiscountCents Int?        @map("max_discount_cents") // for percentage coupons
-  isActive        Boolean      @default(true) @map("is_active")
-  expiresAt       DateTime?    @map("expires_at")
-  createdAt       DateTime     @default(now()) @map("created_at")
-  updatedAt       DateTime     @updatedAt @map("updated_at")
+  id String @id @default(uuid())
+  code String @unique
+  discountType DiscountType @map("discount_type")
+  discountValue Int @map("discount_value") // cents for fixed, percentage (1-100) for percentage
+  maxUses Int @default(100) @map("max_uses")
+  usedCount Int @default(0) @map("used_count")
+  minPurchaseCents Int? @map("min_purchase_cents")
+  maxDiscountCents Int? @map("max_discount_cents") // for percentage coupons
+  isActive Boolean @default(true) @map("is_active")
+  expiresAt DateTime? @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   // FK Relations
-  applicableCategories Json?   @map("applicable_categories") // array of category IDs
+  applicableCategories Json @map("applicable_categories") // array of category IDs as JSON
 
   // Relations
-  orders          Order[]
+  orders Order[]
 
   @@map("coupons")
   @@index([code])
@@ -130,33 +129,33 @@ model Coupon {
 
 /// Order model
 model Order {
-  id                String      @id @default(uuid())
-  status            OrderStatus @default(PENDING)
-  subtotalCents     Int         @map("subtotal_cents")
-  discountCents     Int         @default(0) @map("discount_cents")
-  shippingCents     Int         @default(0) @map("shipping_cents")
-  totalCents        Int         @map("total_cents")
-  couponCode        String?     @map("coupon_code")
-  stripeSessionId   String?     @map("stripe_session_id")
+  id String @id @default(uuid())
+  status OrderStatus @default(PENDING)
+  subtotalCents Int @map("subtotal_cents")
+  discountCents Int @default(0) @map("discount_cents")
+  shippingCents Int @default(0) @map("shipping_cents")
+  totalCents Int @map("total_cents")
+  couponCode String? @map("coupon_code")
+  stripeSessionId String? @map("stripe_session_id")
   stripePaymentIntentId String? @map("stripe_payment_intent_id")
 
   // Shipping address (for physical products)
-  shippingAddress Json?         @map("shipping_address")
-  shippingName    String?       @map("shipping_name")
+  shippingAddress Json? @map("shipping_address")
+  shippingName String? @map("shipping_name")
 
-  createdAt       DateTime      @default(now()) @map("created_at")
-  updatedAt       DateTime      @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   // FK Relations
-  userId          String        @map("user_id")
-  user            User          @relation(fields: [userId], references: [id])
+  userId String @map("user_id")
+  user User @relation(fields: [userId], references: [id])
 
-  couponId        String?       @map("coupon_id")
-  coupon          Coupon?       @relation(fields: [couponId], references: [id])
+  couponId String? @map("coupon_id")
+  coupon Coupon? @relation(fields: [couponId], references: [id])
 
   // Relations
-  items           OrderItem[]
-  downloadTokens  DownloadToken[]
+  items OrderItem[]
+  downloadTokens DownloadToken[]
 
   @@map("orders")
   @@index([userId])
@@ -166,19 +165,19 @@ model Order {
 
 /// Order item model
 model OrderItem {
-  id              String   @id @default(uuid())
-  quantity        Int
-  priceCents      Int      @map("price_cents") // price at time of purchase
+  id String @id @default(uuid())
+  quantity Int
+  priceCents Int @map("price_cents") // price at time of purchase
 
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   // FK Relations
-  orderId         String   @map("order_id")
-  order           Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId String @map("order_id")
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
-  productId       String   @map("product_id")
-  product         Product  @relation(fields: [productId], references: [id])
+  productId String @map("product_id")
+  product Product @relation(fields: [productId], references: [id])
 
   // Relations
   downloadTokens DownloadToken[]
@@ -190,21 +189,21 @@ model OrderItem {
 
 /// Download token model (for secure digital file access)
 model DownloadToken {
-  id              String    @id @default(cuid())
-  token           String    @unique
-  expiresAt       DateTime  @map("expires_at")
-  usedAt          DateTime? @map("used_at")
-  downloadCount   Int       @default(0) @map("download_count")
-  maxDownloads    Int       @default(1) @map("max_downloads")
+  id String @id @default(cuid())
+  token String @unique
+  expiresAt DateTime @map("expires_at")
+  usedAt DateTime? @map("used_at")
+  downloadCount Int @default(0) @map("download_count")
+  maxDownloads Int @default(1) @map("max_downloads")
 
-  createdAt       DateTime  @default(now()) @map("created_at")
+  createdAt DateTime @default(now()) @map("created_at")
 
   // FK Relations
-  orderId         String    @map("order_id")
-  order           Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId String @map("order_id")
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
-  orderItemId     String    @map("order_item_id")
-  orderItem       OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  orderItemId String @map("order_item_id")
+  orderItem OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
 
   @@map("download_tokens")
   @@index([token])
