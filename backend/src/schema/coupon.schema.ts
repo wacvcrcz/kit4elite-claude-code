@@ -13,7 +13,7 @@ export const createCouponSchema = z.object({
     .string()
     .min(3, 'Coupon code must be at least 3 characters')
     .max(50, 'Coupon code too long')
-    .regex(/^[A-Z0-9-]+$/, 'Coupon code must be uppercase letters, numbers, and hyphens only'),
+    .regex(/^[A-Z0-9-]+$/, 'Coupon code must be uppercase letters, numbers, and hyphens only')
     .transform(val => val.toUpperCase()),
   discountType: z.enum([DiscountType.PERCENTAGE, DiscountType.FIXED]),
   discountValue: z
