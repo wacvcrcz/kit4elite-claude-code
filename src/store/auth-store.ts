@@ -13,7 +13,7 @@ import {
   AuthResponse,
   User,
 } from '@/types';
-import { api } from '@/lib/api';
+import { api, apiClient } from '@/lib/api';
 import toast from 'react-hot-toast';
 
 /**
@@ -189,3 +189,21 @@ export const useIsAdmin = (): boolean => {
 export const useCurrentUser = (): User | null => {
   return useAuthStore((state) => state.user);
 };
+
+/**
+ * Get auth token for API calls
+ * This is called by the API client to avoid circular dependencies
+ */
+export function getAuthToken(): string | null {
+  // Read directly from localStorage to avoid initialization issues
+  const stored = localStorage.getItem('auth-storage');
+  if (stored) {
+    try {
+      const parsed = JSON.parse(stored);
+      return parsed.accessToken || null;
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}

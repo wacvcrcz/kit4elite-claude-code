@@ -1,6 +1,7 @@
 /**
  * API Client Configuration
  * Axios instance with JWT interceptors for authenticated requests
+ * Fixed to avoid circular dependency issues
  */
 
 import axios, {
@@ -9,8 +10,6 @@ import axios, {
   AxiosResponse,
   InternalAxiosRequestConfig,
 } from 'axios';
-import { useAuthStore } from '@/store/auth-store';
-import toast from 'react-hot-toast';
 
 // API base URL - will be configured via env in production
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
@@ -28,10 +27,23 @@ const apiClient: AxiosInstance = axios.create({
 
 /**
  * Request interceptor: Attach access token to requests
+ * Reads token directly from localStorage to avoid circular dependency
  */
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const token = useAuthStore.getState().accessToken;
+    // Get token from localStorage directly (Zustand persist format)
+    let token: string | null = null;
+    try {
+      const stored = localStorage.getItem('auth-storage');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        // Zustand persist stores state in a "state" property
+        token = parsed?.state?.accessToken || null;
+      }
+    } catch {
+      token = null;
+    }
+
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -46,24 +58,16 @@ apiClient.interceptors.request.use(
  * Flag to prevent multiple refresh attempts
  */
 let isRefreshing = false;
-let failedQueue: Array<{
-  resolve: (value: string | null) => void;
-  reject: (reason?: unknown) => void;
-}> = [];
+let refreshSubscribers: Array<(token: string | null) => void> = [];
 
-/**
- * Process queued requests after token refresh
- */
-const processQueue = (error: AxiosError | null, token: string | null = null) => {
-  failedQueue.forEach((prom) => {
-    if (error) {
-      prom.reject(error);
-    } else {
-      prom.resolve(token);
-    }
-  });
-  failedQueue = [];
-};
+function subscribeTokenRefresh(callback: (token: string | null) => void): void {
+  refreshSubscribers.push(callback);
+}
+
+function onTokenRefreshed(token: string | null): void {
+  refreshSubscribers.forEach((callback) => callback(token));
+  refreshSubscribers = [];
+}
 
 /**
  * Response interceptor: Handle token refresh on 401 errors
@@ -80,52 +84,71 @@ apiClient.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // If already retrying, process queue and reject
+    // If already retrying, queue the request
     if (originalRequest._retry) {
-      return Promise.reject(error);
+      return new Promise((resolve, reject) => {
+        subscribeTokenRefresh((token) => {
+          if (token && originalRequest.headers) {
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+            resolve(apiClient(originalRequest));
+          } else {
+            reject(error);
+          }
+        });
+      });
     }
+
+    // Mark as retrying
+    originalRequest._retry = true;
 
     // Try to refresh token
     if (!isRefreshing) {
       isRefreshing = true;
-      originalRequest._retry = true;
-
+      
       try {
-        const newToken = await useAuthStore.getState().refreshAccessToken();
+        // Get refresh token from store
+        const refreshToken = localStorage.getItem('auth-storage')
+          ? JSON.parse(localStorage.getItem('auth-storage') || '{}').refreshToken
+          : null;
 
-        if (newToken) {
-          processQueue(null, newToken);
-          originalRequest.headers.Authorization = `Bearer ${newToken}`;
+        if (!refreshToken) {
+          throw new Error('No refresh token');
+        }
+
+        const response = await axios.post<{
+          success: boolean;
+          data: { accessToken: string };
+        }>(`${API_BASE_URL}/auth/refresh`, { refreshToken });
+
+        if (response.data.success) {
+          const newToken = response.data.data.accessToken;
+          onTokenRefreshed(newToken);
+          
+          // Update header and retry
+          if (originalRequest.headers) {
+            originalRequest.headers.Authorization = `Bearer ${newToken}`;
+          }
           return apiClient(originalRequest);
-        } else {
-          processQueue(error, null);
-          useAuthStore.getState().logout();
-          toast.error('Session expired. Please log in again.');
-          return Promise.reject(error);
         }
       } catch (refreshError) {
-        processQueue(refreshError as AxiosError, null);
-        useAuthStore.getState().logout();
+        onTokenRefreshed(null);
+        // Redirect to login or handle logout
+        window.location.href = '/login';
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
       }
     }
 
-    // Queue requests made while refreshing
+    // If already refreshing, wait for new token
     return new Promise((resolve, reject) => {
-      failedQueue.push({
-        resolve: (token: string | null) => {
-          if (token) {
-            originalRequest.headers.Authorization = `Bearer ${token}`;
-            resolve(apiClient(originalRequest));
-          } else {
-            reject(error);
-          }
-        },
-        reject: (err: unknown) => {
-          reject(err);
-        },
+      subscribeTokenRefresh((token) => {
+        if (token && originalRequest.headers) {
+          originalRequest.headers.Authorization = `Bearer ${token}`;
+          resolve(apiClient(originalRequest));
+        } else {
+          reject(error);
+        }
       });
     });
   }
